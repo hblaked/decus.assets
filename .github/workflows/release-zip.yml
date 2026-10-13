@@ -1,28 +1,35 @@
+
 name: Auto Release ZIP
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+
+permissions:
+  contents: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
+
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    uses: actions/checkout@v4
-
-
-    name: Create zip
-
+      - name: Create resource pack ZIP
         run: |
-          zip -r project.zip ./*
+          test -f pack.mcmeta
+          test -d assets
+          zip -r decus-assets.zip pack.mcmeta assets/
 
-    name: Create / update release
-
-        uses: softprops/action-gh-release@v1
+      - name: Create or update release
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
           name: Latest
-          files: project.zip
+          files: decus-assets.zip
+          overwrite_files: true
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
